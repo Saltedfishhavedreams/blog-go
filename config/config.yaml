@@ -1,0 +1,23 @@
+name: 'blog'
+mode: 'dev'
+port: 8080
+version: 'v0.1.0'
+start_time: '2023-09-22'
+machine_id: 1
+
+auth:
+  jwt_expire: 8760
+mysql:
+  host: '127.0.0.1'
+  port: 3306
+  user: 'root'
+  password: 'fishpwd4321..'
+  db_name: 'blog'
+  max_open_conns: 200
+  max_idle_conns: 50
+redis:
+  host: '127.0.0.1'
+  port: 6379
+  password: ''
+  db: 0
+  poll_size: 100
