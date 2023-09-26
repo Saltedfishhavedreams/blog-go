@@ -1,6 +1,8 @@
 package router
 
 import (
+	middlewares "blog/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,6 +12,8 @@ func Init(mode string) *gin.Engine {
 	}
 
 	r := gin.New()
+
+	r.Use(middlewares.Cors())
 
 	return r
 }

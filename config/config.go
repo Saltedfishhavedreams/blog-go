@@ -33,7 +33,7 @@ type MysqlConfig struct {
 
 type RedisConfig struct {
 	Host     string `mapstructure:"host"`      // 数据库连接地址
-	Port     string `mapstructure:"port"`      // 数据库连接端口
+	Port     int16  `mapstructure:"port"`      // 数据库连接端口
 	Password string `mapstructure:"password"`  // 数据库账户密码
 	Db       int    `mapstructure:"db"`        // redis 默认选择数据库
 	PoolSize int32  `mapstructure:"pool_size"` // redis 最大连接池
