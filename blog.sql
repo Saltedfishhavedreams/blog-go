@@ -91,7 +91,7 @@ CREATE TABLE `post`  (
   `post_title` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '帖子标题',
   `post_description` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '帖子描述',
   `post_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '帖子内容',
-  `author_id` bigint NOT NULL COMMENT '帖子作者 user_id',
+  `author_id` bigint NOT NULL COMMENT '帖子作者 id',
   `community_id` int NOT NULL COMMENT '帖子所属社区',
 	`category_id` int NOT NULL COMMENT '帖子在作者个人分类的位置',
   `post_status` tinyint NULL DEFAULT 1 COMMENT '帖子状态',
@@ -159,7 +159,6 @@ CREATE TABLE `tag`  (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint NOT NULL,
   `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
@@ -169,12 +168,11 @@ CREATE TABLE `user`  (
 	`homepage_content` text COMMENT "个人主页内容展示",
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `nick_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户昵称',
+  `nickname` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户昵称',
   `role_id` int NOT NULL DEFAULT 0 COMMENT '角色id',
 	`sort` int DEFAULT NULL COMMENT "查询排序,值越大，越靠前",
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_username`(`username`) USING BTREE,
-  UNIQUE INDEX `idx_user_id`(`user_id`) USING BTREE
+  UNIQUE INDEX `idx_username`(`username`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;

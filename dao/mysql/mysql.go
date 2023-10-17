@@ -7,11 +7,12 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
 )
 
 var db *sqlx.DB
 
-func Init(mysqlConfig config.MysqlConfig) (err error) {
+func Init(mysqlConfig *config.MysqlConfig) (err error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True",
 		mysqlConfig.User,
 		mysqlConfig.Password,
@@ -23,7 +24,7 @@ func Init(mysqlConfig config.MysqlConfig) (err error) {
 	db, err = sqlx.Connect("mysql", dsn)
 
 	if err != nil {
-		logger.Error("mysql connect error: %s", err)
+		logger.Error("mysql connect error", zap.Error(err))
 		return
 	}
 

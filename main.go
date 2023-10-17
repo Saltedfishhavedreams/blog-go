@@ -15,6 +15,8 @@ import (
 	"blog/pkg/logger"
 	"blog/pkg/snowflake"
 	"blog/router"
+
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -23,20 +25,25 @@ func main() {
 		return
 	}
 
-	if err := mysql.Init(*config.Config.Mysql); err != nil {
-		logger.Error("mysql init err: %v", err)
+	if err := logger.Init(config.Config.Log, config.Config.Mode); err != nil {
+		fmt.Printf("logger init err: %v", err)
+		return
+	}
+
+	if err := mysql.Init(config.Config.Mysql); err != nil {
+		logger.Error("mysql init err", zap.Error(err))
 		return
 	}
 	defer mysql.Close()
 
-	if err := redis.Init(*config.Config.Redis); err != nil {
-		logger.Error("redis init err: %v", err)
+	if err := redis.Init(config.Config.Redis); err != nil {
+		logger.Error("redis init err", zap.Error(err))
 		return
 	}
 	defer redis.Close()
 
 	if err := snowflake.Init(config.Config.StartTime, config.Config.MachineId); err != nil {
-		logger.Error("snowflake init err: %v", err)
+		logger.Error("snowflake init err", zap.Error(err))
 		return
 	}
 
@@ -49,7 +56,7 @@ func main() {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Error("server start err: %v", err)
+			logger.Error("server start err", zap.Error(err))
 		}
 	}()
 
@@ -70,7 +77,7 @@ func main() {
 
 	// 五秒超时context
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Error("server shutdown err: %v", err)
+		logger.Error("server shutdown err", zap.Error(err))
 	}
 
 	logger.Info("Bye~")

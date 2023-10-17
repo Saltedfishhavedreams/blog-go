@@ -21,3 +21,10 @@ redis:
   password: ''
   db: 0
   poll_size: 100
+log:
+  level: 'debug'
+  filename: 'tmp/blog.log'
+  max_size: 200
+  max_age: 30
+  max_backups: 7
+  Compress: false

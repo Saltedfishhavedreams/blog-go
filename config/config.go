@@ -19,6 +19,7 @@ type AppConfig struct {
 	MachineId int64        `mapstructure:"machine_id"` // 雪花算法创建新节点值
 	Mysql     *MysqlConfig `mapstructure:"mysql"`
 	Redis     *RedisConfig `mapstructure:"redis"`
+	Log       *LogConfig   `mapstructure:"log"`
 }
 
 type MysqlConfig struct {
@@ -39,6 +40,15 @@ type RedisConfig struct {
 	PoolSize int32  `mapstructure:"pool_size"` // redis 最大连接池
 }
 
+type LogConfig struct {
+	Level      string `mapStructure:"level"`       // 日志等级 zapcore.Level
+	Filename   string `mapStructure:"filename"`    // 日志大小
+	MaxSize    int    `mapStructure:"max_size"`    // 日志大小
+	MaxAge     int    `mapStructure:"max_age"`     // 日志日志存储时长
+	MaxBackups int    `mapStructure:"max_backups"` // 日志最多存储文件
+	Compress   bool   `mapStructure:"compress"`    // 日志是否压缩
+}
+
 // filePath 支持读取指定地址文件
 // 如果未识别到指定位置地址，则读取默认地址
 // 默认读取项目根目录下 ./config/config
@@ -54,7 +64,9 @@ func Init(filePath ...string) (err error) {
 	// 配置读取失败
 	if err = viper.ReadInConfig(); err != nil {
 		var pathErr *fs.PathError
-		if reflect.TypeOf(err).AssignableTo(reflect.TypeOf(pathErr)) && len(filePath) > 1 {
+		var unsupportedConfigError viper.UnsupportedConfigError
+
+		if (reflect.TypeOf(err).AssignableTo(reflect.TypeOf(pathErr)) || reflect.TypeOf(err).AssignableTo(reflect.TypeOf(unsupportedConfigError))) && len(filePath) > 1 {
 			// 重置
 			viper.Reset()
 
