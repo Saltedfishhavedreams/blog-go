@@ -121,14 +121,18 @@ CREATE TABLE `post_tag`  (
 DROP TABLE IF EXISTS `role`;
 CREATE TABLE `role`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `role_id` int NOT NULL DEFAULT 0,
+  `role_id` varchar(36) NOT NULL,
+  `role_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `role_nickname` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `role_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `is_admin` tinyint(1) DEFAULT 0 COMMENT '是否是超级管理员 0/1 否/是',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_role_id`(`role_id`) USING BTREE
+  UNIQUE INDEX `idx_role_name`(`role_name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+
+INSERT INTO role(role_id, role_name, role_nickname, role_description, is_admin) VALUES (1, "admin", "超级管理员", "拥有所有权限", 1)
 
 -- ----------------------------
 -- Table structure for role_permission
@@ -159,20 +163,21 @@ CREATE TABLE `tag`  (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `uid` bigint NOT NULL,
+  `username` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
   `avatar` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '头像路径',
   `gender` tinyint DEFAULT 0,
 	`personal_signature` varchar(64) DEFAULT "" COMMENT "个性签名",
-	`homepage_content` text COMMENT "个人主页内容展示",
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `nickname` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户昵称',
   `role_id` int NOT NULL DEFAULT 0 COMMENT '角色id',
 	`sort` int DEFAULT NULL COMMENT "查询排序,值越大，越靠前",
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_username`(`username`) USING BTREE
+  UNIQUE INDEX `idx_username`(`username`) USING BTREE,
+  UNIQUE INDEX `idx_uid`(`uid`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;

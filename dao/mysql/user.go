@@ -1,44 +1,78 @@
 package mysql
 
 import (
+	"blog/helper"
 	"blog/models"
-	"blog/utils"
+	"blog/response"
 	"database/sql"
 	"fmt"
+	"reflect"
+	"strings"
 )
 
-// @params conditionField 查询条件字段 (id 或 username)
-// @params condition 查询条件值
-func getUserInfo(conditionField, condition string) (*models.User, error) {
-	switch condition {
-	case "id":
-	case "username":
-		break
-	default:
-		conditionField = "id"
+// @Description 根据 struct tag 中 DB 查询用户信息。
+// @params conditionField 查询条件字段 (id 或 username)。
+// @params condition 查询条件值。
+// @params data 数据接收参数 (指针类型)。
+func getUserInfo(conditionField, condition string, data any) error {
+	rvData := reflect.ValueOf(data)
+	rtData := rvData.Type()
+	if rtData.Kind() == reflect.Ptr && !rvData.IsNil() {
+		rtData = rtData.Elem()
+
+		if rtData.Kind() == reflect.Struct {
+			switch conditionField {
+			case "id":
+			case "username":
+				break
+			default:
+				conditionField = "id"
+			}
+
+			// 获取所有需要查询的字段
+			selectFields := make([]byte, 0)
+			for fieldIndex := 0; fieldIndex < rtData.NumField(); fieldIndex++ {
+				currField := rtData.Field(fieldIndex)
+				currDBField := currField.Tag.Get("db")
+				if currDBField != "" {
+					selectFields = append(selectFields, []byte(strings.Split(currDBField, ",")[0]+",")...)
+				}
+			}
+
+			// 无可查询字段
+			if len(selectFields) == 0 {
+				return ErrorUserInfoNoAvailiableFieldsToQuery
+			}
+
+			fieldsStr := string(selectFields)[:len(selectFields)-1]
+			sqlStr := fmt.Sprintf("select %s from user where %s = ?", fieldsStr, conditionField)
+
+			err := DB.Get(data, sqlStr, condition)
+			if err == sql.ErrNoRows {
+				return response.CodeUserNotExist
+			} else if err != nil {
+				return err
+			}
+
+			return nil
+		}
 	}
 
-	sqlStr := fmt.Sprintf("select id, avatar, gender, nickname, nickname, role_id, create_time, update_time from user where %s = ?", conditionField)
-	userinfo := new(models.User)
-
-	err := db.Get(userinfo, sqlStr, condition, condition)
-	if err == sql.ErrNoRows {
-		return nil, ErrorUserNotExist
-	} else if err != nil {
-		return nil, err
-	}
-
-	return userinfo, nil
+	return ErrorUserInfoReceiptType
 }
 
-// @params condition 查询条件值
-func GetUserInfoById(condition string) (*models.User, error) {
-	return getUserInfo("id", condition)
+// @Description 根据 struct tag 中 DB 查询用户信息。
+// @params condition 查询条件值。
+// @params data 数据接收参数 (指针类型)。
+func GetUserInfoById(condition string, data any) error {
+	return getUserInfo("id", condition, data)
 }
 
-// @params condition 查询条件值
-func GetUserInfoByUsername(condition string) (*models.User, error) {
-	return getUserInfo("username", condition)
+// @Description 根据 struct tag 中 DB 查询用户信息。
+// @params condition 查询条件值。
+// @params data 数据接收参数 (指针类型)。
+func GetUserInfoByUsername(condition string, data any) error {
+	return getUserInfo("username", condition, data)
 }
 
 // @params username 用户名
@@ -46,14 +80,14 @@ func CheckUserExistByUsername(username string) error {
 	sqlStr := "select count(id) from user where username = ?"
 	var count int
 
-	err := db.Get(&count, sqlStr, username)
+	err := DB.Get(&count, sqlStr, username)
 
 	if err != nil {
 		return err
 	}
 
 	if count > 0 {
-		return ErrorUserExist
+		return response.CodeUserExist
 	}
 
 	return nil
@@ -61,8 +95,8 @@ func CheckUserExistByUsername(username string) error {
 
 // @params otherFields 可选参数 [role_id, sort]
 func CreateUser(user *models.User, otherFields ...interface{}) (err error) {
-	sqlStr := "insert into user(username, password, role_id, sort, nickname) values(?, ?, ?, ?, ?)"
-	randStr := utils.RandStr(15)
+	sqlStr := "insert into user(uid, username, password, role_id, sort, nickname) values(?, ?, ?, ?, ?, ?)"
+	randStr := helper.RandStr(15)
 
 	var role_id int
 	if len(otherFields) > 1 {
@@ -79,9 +113,7 @@ func CreateUser(user *models.User, otherFields ...interface{}) (err error) {
 	}
 
 	nickame := randStr[:6] + "_" + randStr[6:]
-	fmt.Printf("nickame: %v\n", nickame)
-
-	_, err = db.Exec(sqlStr, user.Username, utils.EncryptPwd(user.Password), role_id, sort, nickame)
+	_, err = DB.Exec(sqlStr, user.Uid, user.Username, helper.EncryptPwd(user.Password), role_id, sort, nickame)
 
 	return
 }

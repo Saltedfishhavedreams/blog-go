@@ -6,7 +6,9 @@ start_time: '2023-09-22'
 machine_id: 1
 
 auth:
-  jwt_expire: 8760
+  jwt_access_expire: 336
+  jwt_refresh_expire: 720
+  jwt_key: 'blog_secret'
 mysql:
   host: '127.0.0.1'
   port: 3306

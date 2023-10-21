@@ -10,6 +10,9 @@ import (
 
 var Config = new(AppConfig)
 
+// gin 上下文中存储的 userClaim key
+const UserClaimKey = "userClaim"
+
 type AppConfig struct {
 	Name      string       `mapstructure:"name"`       // 项目名称
 	Mode      string       `mapstructure:"mode"`       // 模式
@@ -20,6 +23,7 @@ type AppConfig struct {
 	Mysql     *MysqlConfig `mapstructure:"mysql"`
 	Redis     *RedisConfig `mapstructure:"redis"`
 	Log       *LogConfig   `mapstructure:"log"`
+	Jwt       *JwtConfig   `mapstructure:"auth"`
 }
 
 type MysqlConfig struct {
@@ -38,6 +42,12 @@ type RedisConfig struct {
 	Password string `mapstructure:"password"`  // 数据库账户密码
 	Db       int    `mapstructure:"db"`        // redis 默认选择数据库
 	PoolSize int32  `mapstructure:"pool_size"` // redis 最大连接池
+}
+
+type JwtConfig struct {
+	AccessExpireAt  int    `mapstructure:"jwt_access_expire"`  // access token 过期时间(小时)
+	RefreshExpireAt int    `mapstructure:"jwt_refresh_expire"` // refresh token 过期时间(小时)
+	Secret          string `mapstructure:"jwt_key"`            // jwt 签名密钥
 }
 
 type LogConfig struct {

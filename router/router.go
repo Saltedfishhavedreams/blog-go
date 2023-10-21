@@ -2,7 +2,7 @@ package router
 
 import (
 	"blog/controller"
-	middlewares "blog/middleware"
+	middlewares "blog/middlewares"
 
 	_ "blog/docs"
 
@@ -23,6 +23,13 @@ func Init(mode string) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/register", controller.RegisterHandler)
+	r.POST("/login", controller.LoginHandler)
+
+	auth := r.Group("/", middlewares.LoginAuthCheck)
+
+	auth.GET("/refresh_token", controller.RefreshTokenHandler)
+	auth.GET("/role", controller.GetRoleListHandler)
+	auth.GET("/role/:role_id", controller.GetRoleHandler)
 
 	return r
 }

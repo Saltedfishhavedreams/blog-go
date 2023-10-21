@@ -9,6 +9,7 @@ const (
 	CodeUserExist
 	CodeInvalidPassword
 	CodeServerBusy
+	CodeServerError
 	CodeAddFailed
 	CodeUpdateFailed
 	CodeDeleteFailed
@@ -31,6 +32,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeUserExist:          "用户名已存在",
 	CodeInvalidPassword:    "用户名或密码错误",
 	CodeServerBusy:         "服务繁忙",
+	CodeServerError:        "网络异常",
 	CodeAddFailed:          "添加失败",
 	CodeUpdateFailed:       "修改失败",
 	CodeDeleteFailed:       "删除失败",
@@ -40,7 +42,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeTagExist:           "标签已存在",
 	CodeTagNotExist:        "标签不存在",
 	CodeCommunityNotExist:  "分类不存在",
-	CodeNeedLogin:          "需要登录",
+	CodeNeedLogin:          "请先登录",
 	CodeInvalidToken:       "无效的token",
 	CodeFileSuffixNotLegal: "文件后缀名不合法",
 	CodeEmailCodeIncorrect: "验证码不正确",
@@ -52,4 +54,8 @@ func (c ResCode) Msg() string {
 		msg = codeMsgMap[CodeServerBusy]
 	}
 	return msg
+}
+
+func (c ResCode) Error() string {
+	return c.Msg()
 }
